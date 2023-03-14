@@ -23,7 +23,7 @@ ifneq (, $(USE_BUILD_CONTAINER))
 endif
 	mkdir -p "$(DIST)"
 
-build: # @HELP build binary for current platform
+build: # @HELP (default) build binary for current platform
 build: gen-dockerignore build-dirs
 ifneq (, $(USE_BUILD_CONTAINER))
 	echo "# BUILD using build container: $(BUILD_IMAGE)"
