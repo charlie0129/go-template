@@ -1,4 +1,4 @@
-# go-template
+# template-go
 
 This is a skeleton project for a Go application, which captures the best build techniques I have learned to date. It is inspired by [thockin/go-build-template](https://github.com/thockin/go-build-template), but heavily modified to suit my needs even better.
 

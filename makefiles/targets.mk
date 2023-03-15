@@ -48,6 +48,7 @@ ifneq (, $(USE_BUILD_CONTAINER))
 	    $(BUILD_IMAGE)                       \
 	    ./build/build.sh $(ENTRY)
 else
+	echo "# BUILD using local go sdk: $(shell go env GOVERSION 2>/dev/null || echo "none")"
 	ARCH="$(ARCH)"                   \
 	    OS="$(OS)"                   \
 	    OUTPUT="$(OUTPUT)"           \
@@ -215,8 +216,9 @@ variables:
 	echo "  debug_build_enabled      $(DEBUG)"
 	echo "  use_build_container      $(USE_BUILD_CONTAINER)"
 	echo "  build_container_image    $(BUILD_IMAGE)"
-	echo "  container_base_image     $(BASE_IMAGE)"
+	echo "  local_go_sdk             $(shell go env GOVERSION 2>/dev/null || echo "none")"
 	echo "CONTAINER:"
+	echo "  container_base_image     $(BASE_IMAGE)"
 	echo "  container_img_tag        $(IMAGE_TAG)"
 	echo "  container_repos          $(IMAGE_REPOS)"
 	echo "  container_img_full       $(IMAGE_REPO_TAGS)"
