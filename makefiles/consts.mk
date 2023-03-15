@@ -40,7 +40,7 @@ HTTP_PROXY  ?=
 HTTPS_PROXY ?=
 
 # Version string, use git tag by default
-VERSION     ?= $(shell git describe --tags --always --dirty)
+VERSION     ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "UNKNOWN")
 
 # Container image tag, same as VERSION by default
 # if VERSION is not a semantic version (e.g. local uncommitted versions), then use latest
