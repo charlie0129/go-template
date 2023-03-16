@@ -23,7 +23,7 @@ ifeq (, $(shell which go))
   USE_BUILD_CONTAINER := 1
 endif
 # Go version used as the image of the build container, grabbed from go.mod
-GO_VERSION       := $(shell grep -E 'go [[:digit:]]*.[[:digit:]]*' go.mod | sed 's/go //')
+GO_VERSION       := $(shell grep -E '^go [[:digit:]]{1,3}\.[[:digit:]]{1,3}$$' go.mod | sed 's/go //')
 # Local Go SDK version
 LOCAL_GO_VERSION := $(shell go env GOVERSION 2>/dev/null || echo "none")
 # Build container image
