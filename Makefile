@@ -38,6 +38,9 @@ TARGETS := build       \
     variables          \
     help
 
+# Default target, subprojects will be called with default target too
+all: $(addprefix mk-all.,$(SUBPROJS));
+
 # Run common targets on all subprojects
 $(foreach t,$(TARGETS),$(eval                \
     $(t): $(addprefix mk-$(t).,$(SUBPROJS)); \
@@ -55,9 +58,6 @@ shell: $(addprefix mk-shell.,$(word 1,$(SUBPROJS)));
 # Targets to run on a specific subproject (<subproj>-<target>)
 $(foreach p,$(SUBPROJS),$(eval \
     $(p)-%: mk-%.$(p);         \
-))
-$(foreach p,$(SUBPROJS),$(eval \
-    $(p): mk-build.$(p);         \
 ))
 
 mk-%:
