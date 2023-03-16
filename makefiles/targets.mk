@@ -21,7 +21,7 @@ ifneq (, $(USE_BUILD_CONTAINER))
 	mkdir -p "$(GOCACHE)/gocache" \
 	         "$(GOCACHE)/gomodcache"
 endif
-	mkdir -p "$(DIST)"
+	mkdir -p "$(BIN_OUTPUT_DIR)"
 
 build: # @HELP (default) build binary for current platform
 build: gen-dockerignore build-dirs
@@ -48,7 +48,7 @@ ifneq (, $(USE_BUILD_CONTAINER))
 	    $(BUILD_IMAGE)                       \
 	    ./build/build.sh $(ENTRY)
 else
-	echo "# BUILD using local go sdk: $(shell go env GOVERSION 2>/dev/null || echo "none")"
+	echo "# BUILD using local go sdk: $(LOCAL_GO_VERSION) , set USE_BUILD_CONTAINER to use containerized build environment"
 	ARCH="$(ARCH)"                   \
 	    OS="$(OS)"                   \
 	    OUTPUT="$(OUTPUT)"           \
@@ -60,6 +60,8 @@ else
 	    HTTPS_PROXY="$(HTTPS_PROXY)" \
 	    bash build/build.sh $(ENTRY)
 endif
+	echo "# BUILD linking $(DIST)/$(BIN_BASENAME) <==> $(OUTPUT) ..."
+	ln -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
 
 # INTERNAL: build-<os>_<arch> to build for a specific platform
 build-%:
@@ -67,8 +69,7 @@ build-%:
 	    build                                \
 	    --no-print-directory                 \
 	    GOOS=$(firstword $(subst _, ,$*))    \
-	    GOARCH=$(lastword $(subst _, ,$*))   \
-	    FULL_NAME=1
+	    GOARCH=$(lastword $(subst _, ,$*))
 
 all-build: # @HELP build binaries for all platforms
 all-build: $(addprefix build-, $(subst /,_, $(BIN_PLATFORMS)))
@@ -77,19 +78,17 @@ all-build: $(addprefix build-, $(subst /,_, $(BIN_PLATFORMS)))
 
 package: # @HELP build and package binary for current platform
 package: build
-	mkdir -p "$(BIN_VERBOSE_DIR)"
-	cp LICENSE "$(BIN_VERBOSE_DIR)/LICENSE"
-	cp "$(OUTPUT)" "$(BIN_VERBOSE_DIR)/$(BIN_BASENAME)"
-	echo "# PACKAGE compressing $(BIN) to $(BIN_VERBOSE_DIR)/$(PKG_FULLNAME)"
-	cd $(BIN_VERBOSE_DIR) &&              \
-	    if [ "$(OS)" == "windows" ]; then \
-	        zip "$(PKG_FULLNAME)" "$(BIN_BASENAME)" LICENSE;     \
-	    else                                                     \
-	        tar czf "$(PKG_FULLNAME)" "$(BIN_BASENAME)" LICENSE; \
-	    fi;                                                      \
-	    sha256sum "$(PKG_FULLNAME)" >> "$(BIN)-$(VERSION)-checksums.txt"; \
-	    rm -f LICENSE "$(BIN_BASENAME)"
-	echo "# PACKAGE checksum saved to $(BIN_VERBOSE_DIR)/$(BIN)-$(VERSION)-checksums.txt"
+	mkdir -p "$(PKG_OUTPUT_DIR)"
+	ln -f LICENSE "$(DIST)/LICENSE"
+	echo "# PACKAGE compressing $(BIN) to $(PKG_OUTPUT)"
+	rm -f "$(PKG_OUTPUT)"
+	if [ "$(OS)" == "windows" ]; then \
+	    zip "$(PKG_OUTPUT)" -j "$(DIST)/$(BIN_BASENAME)" "$(DIST)/LICENSE"; \
+	else \
+	    tar czf "$(PKG_OUTPUT)" -C "$(DIST)" "$(BIN_BASENAME)" LICENSE; \
+	fi;
+	cd "$(PKG_OUTPUT_DIR)" && sha256sum "$(PKG_FULLNAME)" >> "$(CHECKSUM_FULLNAME)";
+	echo "# PACKAGE checksum saved to $(PKG_OUTPUT_DIR)/$(CHECKSUM_FULLNAME)"
 
 # INTERNAL: package-<os>_<arch> to build and package for a specific platform
 package-%:
@@ -97,14 +96,16 @@ package-%:
 	    package                              \
 	    --no-print-directory                 \
 	    GOOS=$(firstword $(subst _, ,$*))    \
-	    GOARCH=$(lastword $(subst _, ,$*))   \
-	    FULL_NAME=1
+	    GOARCH=$(lastword $(subst _, ,$*))
 
 all-package: # @HELP build and package binaries for all platforms
 all-package: $(addprefix package-, $(subst /,_, $(BIN_PLATFORMS)))
 # overwrite previous checksums
-	cd "$(BIN_VERBOSE_DIR)" && sha256sum *{.tar.gz,.zip} > "$(BIN)-$(VERSION)-checksums.txt"
-	echo "# PACKAGE all checksums saved to $(BIN_VERBOSE_DIR)/$(BIN)-$(VERSION)-checksums.txt"
+	cd "$(PKG_OUTPUT_DIR)" && shopt -s nullglob && \
+	    sha256sum *.{tar.gz,zip} > "$(CHECKSUM_FULLNAME)"
+	echo "# PACKAGE all checksums saved to $(PKG_OUTPUT_DIR)/$(CHECKSUM_FULLNAME)"
+	echo "# PACKAGE linking $(DIST)/$(BIN)-packages-latest <==> $(BIN)-$(VERSION)/packages"
+	ln -sf "$(BIN)-$(VERSION)/packages" "$(DIST)/$(BIN)-packages-latest"
 
 # ===== CONTAINERS =====
 
@@ -113,7 +114,7 @@ container: container-build
 container-build: build-linux_$(ARCH)
 	printf "# CONTAINER repotags: %s\ttarget: %s/%s\tbinaryversion: %s\n" "$(IMAGE_REPO_TAGS)" "linux" "$(ARCH)" "$(VERSION)"
 	if [ "$(OS)" != "linux" ]; then \
-	    echo "# CONTAINER warning: you have set target os to $(OS), but container target os will always be linux"; \
+	    echo "# CONTAINER warning: container target os $(OS) is not valid, only linux is allowed and will be used"; \
 	fi; \
 	TMPFILE=Dockerfile.tmp && \
 	    sed 's/$${BIN}/$(BIN)/g' Dockerfile.in > $${TMPFILE} && \
@@ -124,7 +125,7 @@ container-build: build-linux_$(ARCH)
 	    --build-arg "OS=linux"                 \
 	    --build-arg "VERSION=$(VERSION)"       \
 	    --build-arg "BASE_IMAGE=$(BASE_IMAGE)" \
-	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_VERBOSE_DIR)
+	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_OUTPUT_DIR)
 
 container-push: # @HELP push built container image to all repos
 container-push: $(addprefix container-push-, $(subst :,=, $(subst /,_, $(IMAGE_REPO_TAGS))))
@@ -147,7 +148,7 @@ all-container-push: $(addprefix build-, $(subst /,_, $(IMAGE_PLATFORMS)))
 	    --platform "$(BUILDX_PLATFORMS)"       \
 	    --build-arg "VERSION=$(VERSION)"       \
 	    --build-arg "BASE_IMAGE=$(BASE_IMAGE)" \
-	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_VERBOSE_DIR)
+	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_OUTPUT_DIR)
 
 # ===== MISC =====
 
@@ -185,7 +186,7 @@ shell: build-dirs
 # So we can avoid copying unnecessary files to the build
 # context.
 gen-dockerignore:
-	echo -e "*\n!$(BIN_VERBOSE_DIR)" > .dockerignore
+	echo -e "*\n!$(BIN_OUTPUT_DIR)" > .dockerignore
 
 clean: # @HELP clean built binaries
 clean:
@@ -216,7 +217,7 @@ variables:
 	echo "  debug_build_enabled      $(DEBUG)"
 	echo "  use_build_container      $(USE_BUILD_CONTAINER)"
 	echo "  build_container_image    $(BUILD_IMAGE)"
-	echo "  local_go_sdk             $(shell go env GOVERSION 2>/dev/null || echo "none")"
+	echo "  local_go_sdk             $(LOCAL_GO_VERSION)"
 	echo "CONTAINER:"
 	echo "  container_base_image     $(BASE_IMAGE)"
 	echo "  container_img_tag        $(IMAGE_TAG)"
