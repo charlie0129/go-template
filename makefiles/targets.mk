@@ -80,7 +80,7 @@ package: # @HELP build and package binary for current platform
 package: build
 	mkdir -p "$(PKG_OUTPUT_DIR)"
 	ln -f LICENSE "$(DIST)/LICENSE"
-	echo "# PACKAGE compressing $(BIN) to $(PKG_OUTPUT)"
+	echo "# PACKAGE compressing $(OUTPUT) to $(PKG_OUTPUT)"
 	rm -f "$(PKG_OUTPUT)"
 	if [ "$(OS)" == "windows" ]; then \
 	    zip "$(PKG_OUTPUT)" -j "$(DIST)/$(BIN_BASENAME)" "$(DIST)/LICENSE"; \
@@ -104,8 +104,8 @@ all-package: $(addprefix package-, $(subst /,_, $(BIN_PLATFORMS)))
 	cd "$(PKG_OUTPUT_DIR)" && shopt -s nullglob && \
 	    sha256sum *.{tar.gz,zip} > "$(CHECKSUM_FULLNAME)"
 	echo "# PACKAGE all checksums saved to $(PKG_OUTPUT_DIR)/$(CHECKSUM_FULLNAME)"
-	echo "# PACKAGE linking $(DIST)/$(BIN)-packages-latest <==> $(BIN)-$(VERSION)/packages"
-	ln -sf "$(BIN)-$(VERSION)/packages" "$(DIST)/$(BIN)-packages-latest"
+	echo "# PACKAGE linking $(DIST)/$(BIN)-packages-latest <==> $(PKG_OUTPUT_DIR)s"
+	ln -snf "$(BIN)-$(VERSION)/packages" "$(DIST)/$(BIN)-packages-latest"
 
 # ===== CONTAINERS =====
 
