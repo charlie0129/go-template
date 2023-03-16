@@ -112,7 +112,7 @@ all-package: $(addprefix package-, $(subst /,_, $(BIN_PLATFORMS)))
 container: # @HELP build container image for current platform
 container: container-build
 container-build: build-linux_$(ARCH)
-	printf "# CONTAINER repotags: %s\ttarget: %s/%s\tbinaryversion: %s\n" "$(IMAGE_REPO_TAGS)" "linux" "$(ARCH)" "$(VERSION)"
+	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "linux/$(ARCH)"
 	if [ "$(OS)" != "linux" ]; then \
 	    echo "# CONTAINER warning: container target os $(OS) is not valid, only linux is allowed and will be used"; \
 	fi; \
@@ -139,8 +139,7 @@ BUILDX_PLATFORMS := $(shell echo "$(IMAGE_PLATFORMS)" | sed 's/ /,/g')
 
 all-container-push: # @HELP build and push container images for all platforms
 all-container-push: $(addprefix build-, $(subst /,_, $(IMAGE_PLATFORMS)))
-	echo -e "# Building and pushing images for platforms $(IMAGE_PLATFORMS)"
-	echo -e "# target: $(OS)/$(ARCH)\tversion: $(VERSION)\ttags: $(IMAGE_REPO_TAGS)"
+	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "$(IMAGE_PLATFORMS)"
 	TMPFILE=Dockerfile.tmp && \
 	    sed 's/$${BIN}/$(BIN)/g' Dockerfile.in > $${TMPFILE} && \
 	    docker buildx build --push             \
@@ -221,6 +220,7 @@ variables:
 	echo "CONTAINER:"
 	echo "  container_base_image     $(BASE_IMAGE)"
 	echo "  container_img_tag        $(IMAGE_TAG)"
+	echo "  container_img_name       $(IMAGE_NAME)"
 	echo "  container_repos          $(IMAGE_REPOS)"
 	echo "  container_img_full       $(IMAGE_REPO_TAGS)"
 	echo "PLATFORM:"
