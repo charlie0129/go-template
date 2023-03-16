@@ -26,6 +26,6 @@ import (
 
 func main() {
 	name := color.New(color.Bold).Sprint("foo")
-	version := color.New(color.FgBlue).Sprint(version.Version)
+	version := color.New(color.FgGreen).Sprint(version.Version)
 	fmt.Printf("This is %s version %s.\n", name, version)
 }

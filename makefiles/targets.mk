@@ -17,7 +17,7 @@ all: build
 # ===== BUILD =====
 
 build-dirs:
-ifneq (, $(USE_BUILD_CONTAINER))
+ifeq (1, $(USE_BUILD_CONTAINER))
 	mkdir -p "$(GOCACHE)/gocache" \
 	         "$(GOCACHE)/gomodcache"
 endif
@@ -25,7 +25,7 @@ endif
 
 build: # @HELP (default) build binary for current platform
 build: gen-dockerignore build-dirs
-ifneq (, $(USE_BUILD_CONTAINER))
+ifeq (1, $(USE_BUILD_CONTAINER))
 	echo "# BUILD using build container: $(BUILD_IMAGE)"
 	docker run                               \
 	    -i                                   \
@@ -48,7 +48,7 @@ ifneq (, $(USE_BUILD_CONTAINER))
 	    $(BUILD_IMAGE)                       \
 	    ./build/build.sh $(ENTRY)
 else
-	echo "# BUILD using local go sdk: $(LOCAL_GO_VERSION) , set USE_BUILD_CONTAINER to use containerized build environment"
+	echo "# BUILD using local go sdk: $(LOCAL_GO_VERSION) , set USE_BUILD_CONTAINER=1 to use containerized build environment"
 	ARCH="$(ARCH)"                   \
 	    OS="$(OS)"                   \
 	    OUTPUT="$(OUTPUT)"           \

@@ -56,6 +56,9 @@ shell: $(addprefix mk-shell.,$(word 1,$(SUBPROJS)));
 $(foreach p,$(SUBPROJS),$(eval \
     $(p)-%: mk-%.$(p);         \
 ))
+$(foreach p,$(SUBPROJS),$(eval \
+    $(p): mk-build.$(p);         \
+))
 
 mk-%:
 	echo "# make -f $(lastword $(subst ., ,$*)).mk $(firstword $(subst ., ,$*))"

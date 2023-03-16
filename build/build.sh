@@ -48,7 +48,7 @@ printf "# BUILD output: %s\ttarget: %s/%s\tversion: %s\n" \
 
 printf "# BUILD building for "
 
-if [ -z "${DEBUG:-}" ]; then
+if [ "${DEBUG:-}" != "1" ]; then
   # release build
   # trim paths, disable symbols and DWARF.
   goasmflags="all=-trimpath=$(pwd)"

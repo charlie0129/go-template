@@ -49,9 +49,9 @@ To add a new subproject, all you need to do is duplicate `foo.mk`, change it to 
 
 #### Build environment
 
-By default, if you have Go in your PATH, it will use you local Go SDK. If you don't have Go, it will use a containerized build environment, specifically, a `golang:1.xx-alpine` Docker image. The actual `1.xx` version will be determined by your `go.mod`. 
+By default, if you have Go in your PATH, it will use you local Go SDK. If you don't have Go, it will use a containerized build environment, specifically, a `golang:1.xx-alpine` Docker image. The actual `1.xx` go version will be determined by your `go.mod`. To manually specify the image of the containerized build environment, set `BUILD_IMAGE` to the Docker image you want, e.g. `golang:1.20`.
 
-To forcibly use the containerized build environment, set `USE_BUILD_CONTAINER` to `1`. For example, `USE_BUILD_CONTAINER=1 make all-build`. To specify the image of the containerized build environment, set `BUILD_IMAGE` to the Docker image you want.
+To make sure the build environment is the same across your teammates and avoid problems, it is recommended to use the containerized build environment. To forcibly use the containerized build environment, set `USE_BUILD_CONTAINER` to `1`. For example, `USE_BUILD_CONTAINER=1 make all-build`.
 
 #### Debug build
 
@@ -77,9 +77,7 @@ To set the version manually, set `VERSION` to something you want. This will affe
 
 #### Binary names
 
-By default, building for current platform will result in a simple binary name, e.g., `bin/foo` `bin/bar`. While building for all platforms will result in a full binary name, e.g., `bin/bar-v0.0.1/bar-v0.0.1-darwin-amd64`.
-
-To forcibly use full binary name, set `FULL_NAME` to `1`.
+After building, two binaries will be generated. For example, one is `bin/foo`, another one is `bin/foo-v0.0.1/foo-v0.0.1-linux-amd64`. The long one is the compiler output. The short one is provided so you can use it more easily, and is hard-linked to the long one.
 
 #### Makefile debugging
 

@@ -16,7 +16,7 @@
 # manually on the command line or using environment variables.
 
 # Use build container or local go sdk. If use have go installed, then
-# we use the local go sdk by default. Set USE_BUILD_CONTAINER manually
+# we use the local go sdk by default. Set USE_BUILD_CONTAINER to 1 manually
 # to use build container.
 USE_BUILD_CONTAINER ?=
 ifeq (, $(shell which go))
@@ -32,7 +32,7 @@ BUILD_IMAGE      ?= golang:$(GO_VERSION)-alpine
 # The base image of container artifacts
 BASE_IMAGE ?= gcr.io/distroless/static:nonroot
 
-# Set this to anything to optimize binary for debugging, otherwise for release
+# Set DEBUG to 1 to optimize binary for debugging, otherwise for release
 DEBUG ?=
 
 # env to passthrough to the build container

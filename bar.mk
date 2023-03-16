@@ -27,7 +27,7 @@ BIN             := bar
 # Container image name, without repo or tags
 IMAGE_NAME      := $(BIN)
 # Container image repositories to push to (supports multiple repos)
-IMAGE_REPOS     := docker.io/charlie0129 ghcr.io/charlie0129
+IMAGE_REPOS     := ghcr.io/charlie0129 # docker.io/charlie0129
 
 # Setup make variables
 include makefiles/consts.mk
