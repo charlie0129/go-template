@@ -30,6 +30,7 @@ ifeq (1, $(USE_BUILD_CONTAINER))
 	docker run                               \
 	    -i                                   \
 	    --rm                                 \
+	    --network host                       \
 	    -u $$(id -u):$$(id -g)               \
 	    -v $$(pwd):/src                      \
 	    -w /src                              \
@@ -161,6 +162,7 @@ shell: build-dirs
 	docker run                               \
 	    -it                                  \
 	    --rm                                 \
+	    --network host                       \
 	    -u $$(id -u):$$(id -g)               \
 	    -v $$(pwd):/src                      \
 	    -w /src                              \
