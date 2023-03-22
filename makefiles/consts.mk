@@ -24,10 +24,17 @@ ifeq (, $(shell which go))
 endif
 # Go version used as the image of the build container, grabbed from go.mod
 GO_VERSION       := $(shell grep -E '^go [[:digit:]]{1,3}\.[[:digit:]]{1,3}$$' go.mod | sed 's/go //')
-# Local Go SDK version
+# Local Go SDK version (only supports go1.16 and later)
 LOCAL_GO_VERSION := $(shell go env GOVERSION 2>/dev/null || echo "none")
+ifeq (, $(shell go env GOVERSION))
+  # Before go1.16, there is no GOVERSION. We don't support such case.
+  $(warning You have $(shell go version | grep -oE " go[[:digit:]]{1,3}\.[[:digit:]]{1,3}.* " | xargs) locally, \
+  which is not supported. Containerized build environment will be used instead.)
+  USE_BUILD_CONTAINER := 1
+endif
+
 # Build container image
-BUILD_IMAGE      ?= golang:$(GO_VERSION)-alpine
+BUILD_IMAGE ?= golang:$(GO_VERSION)-alpine
 
 # The base image of container artifacts
 BASE_IMAGE ?= gcr.io/distroless/static:nonroot
