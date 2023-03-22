@@ -28,7 +28,7 @@ build: gen-dockerignore build-dirs
 ifeq (1, $(USE_BUILD_CONTAINER))
 	echo "# BUILD using build container: $(BUILD_IMAGE)"
 	docker run                               \
-	    -it                                  \
+	    -i                                   \
 	    --rm                                 \
 	    --network host                       \
 	    -u $$(id -u):$$(id -g)               \
