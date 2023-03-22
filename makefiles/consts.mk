@@ -24,13 +24,19 @@ ifeq (, $(shell which go))
 endif
 # Go version used as the image of the build container, grabbed from go.mod
 GO_VERSION       := $(shell grep -E '^go [[:digit:]]{1,3}\.[[:digit:]]{1,3}$$' go.mod | sed 's/go //')
-# Local Go SDK version (only supports go1.16 and later)
-LOCAL_GO_VERSION := $(shell go env GOVERSION 2>/dev/null || echo "none")
+# Local Go release version (only supports go1.16 and later)
+LOCAL_GO_VERSION := $(shell go env GOVERSION 2>/dev/null | grep -oE "go[[:digit:]]{1,3}\.[[:digit:]]{1,3}" || echo "none")
+# Before go1.16, there is no GOVERSION. We don't support such case, so build container will be used.
 ifeq (, $(shell go env GOVERSION))
-  # Before go1.16, there is no GOVERSION. We don't support such case.
   $(warning You have $(shell go version | grep -oE " go[[:digit:]]{1,3}\.[[:digit:]]{1,3}.* " | xargs) locally, \
   which is not supported. Containerized build environment will be used instead.)
   USE_BUILD_CONTAINER := 1
+endif
+# Warn if local go release version is different from what is specified in go.mod.
+ifneq (none, $(LOCAL_GO_VERSION))
+  ifneq (go$(GO_VERSION), $(LOCAL_GO_VERSION))
+    $(warning Your local Go release version ($(LOCAL_GO_VERSION)) is different from the one in go.mod (go$(GO_VERSION)).)
+  endif
 endif
 
 # Build container image
