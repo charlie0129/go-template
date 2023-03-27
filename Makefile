@@ -41,6 +41,11 @@ TARGETS := build       \
 # Default target, subprojects will be called with default target too
 all: $(addprefix mk-all.,$(SUBPROJS));
 
+# Default target for subprojects. make foo / make bar
+$(foreach p,$(SUBPROJS),$(eval \
+    $(p): mk-all.$(p);         \
+))
+
 # Run common targets on all subprojects
 $(foreach t,$(TARGETS),$(eval                \
     $(t): $(addprefix mk-$(t).,$(SUBPROJS)); \
