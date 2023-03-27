@@ -82,7 +82,7 @@ package: build
 	mkdir -p "$(PKG_OUTPUT_DIR)"
 	ln -f LICENSE "$(DIST)/LICENSE"
 	echo "# PACKAGE compressing $(OUTPUT) to $(PKG_OUTPUT)"
-	rm -f "$(PKG_OUTPUT)"
+	$(RM) "$(PKG_OUTPUT)"
 	if [ "$(OS)" == "windows" ]; then \
 	    zip "$(PKG_OUTPUT)" -j "$(DIST)/$(BIN_BASENAME)" "$(DIST)/LICENSE"; \
 	else \
@@ -191,12 +191,12 @@ gen-dockerignore:
 
 clean: # @HELP clean built binaries
 clean:
-	rm -rf $(DIST)/$(BIN)*
+	$(RM) -r $(DIST)/$(BIN)*
 
 all-clean: # @HELP clean built binaries, build cache, and helper tools
 all-clean: clean
 	test -d $(GOCACHE) && chmod -R u+w $(GOCACHE) || true
-	rm -rf $(GOCACHE) $(DIST)
+	$(RM) -r $(GOCACHE) $(DIST)
 
 version: # @HELP output the version string
 version:
