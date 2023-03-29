@@ -2,7 +2,7 @@
 
 This is a skeleton project for a Go application, which captures the best build techniques I have learned to date. It is inspired by [thockin/go-build-template](https://github.com/thockin/go-build-template), but heavily modified to suit my needs even better.
 
-This has only been tested on Linux and macOS. Windows support is very unlikely to come.
+This has only been tested on (mostly) Linux and macOS. Windows support is very unlikely to come.
 
 ## Features
 
@@ -25,25 +25,69 @@ Chances are all the dependencies are already met on a dev machine.
 
 ## Usage
 
+This template supports multiple separate apps, called _subprojects_, which is `foo` and `bar` in this example, corresponding to `foo.mk` and `bar.mk`. In this repo, `foo` and `bar` are just two hello-world Go programs.
+
+### General targets
+
+General targets can be executed by `make <target>`, e.g., `make help`.
+
+- `help`: show general help message, including general targets
+- `all-help`: show help messages for all subjects
+- `boilerplate`: check file header
+- Additional general targets can be appended in the main `Makefile`.
+
+### Subproject targets
+
+Subproject targets can be executed by `make <subproject>-<target>`. This project have two subprojects: `foo` and `bar`. So you can run `make foo-help` to see help messages for `foo` subproject.
+
+Running `make <subproject>` without any target will execute the default target `build`, which is equivalent to `make <subproject>-build`. For example, running `make foo` will build `foo` build binary for current platform.
+
+This is a list of common subproject targets. Some subprojects may have specific targets. You can ass subproject-specific targets to the corresponding `<subproject>.mk` file.
+
+
 ```
-  build                    (default) build binary for current platform
-  all-build                build binaries for all platforms
-  package                  build and package binary for current platform
-  all-package              build and package binaries for all platforms
-  container                build container image for current platform
-  container-push           push built container image to all repos
-  all-container-push       build and push container images for all platforms
+build                    (default) build binary for current platform
+all-build                build binaries for all platforms
+package                  build and package binary for current platform
+all-package              build and package binaries for all platforms
+container                build container image for current platform
+container-push           push built container image to all repos
+all-container-push       build and push container images for all platforms
+shell                    launch a shell in the build container
+clean                    clean built binaries
+all-clean                clean built binaries, build cache, and helper tools
+version                  output the version string
+imageversion             output the container image version
+binaryname               output current artifact binary name
+variables                print makefile variables
+help                     print this message
 ```
-
-> You can run `make help` to see all possible targets.
-
-This template supports multiple apps, called subprojects, which is `foo` and `bar`, corresponding to `foo.mk` and `bar.mk`. In this example, `foo` and `bar` are just two hello-world binaries.
-
-The main Makefile will automatically calls these subproject makefiles (`foo.mk` and `bar.mk`). So `make build` will build all subprojects (`foo` and `bar`). To run a target against a certain subproject, use `make <subproj>-<target>`. For example, `make foo-build` will only build `foo`.
-
-Every target/subproject can be called in this way. For example, `make help` will show help for `foo` and `bar`, equivalent to calling `make foo-help` and `make bar-help`. But you may ask, the help message for the two are same, why do you show the same help twice? Because you can add custom make-targets to `foo.mk` or `bar.mk`. By which time they will show different help messages.
 
 To add a new subproject, all you need to do is duplicate `foo.mk`, change it to `foobar.mk`, make proper changes, add some Go files, and that's it. You don't need to change anything else. Please take a look at `foo.mk` . Every variable is well-commented so it should be fairly straightforward understand.
+
+### Common targets
+
+Common targets is a list of common subproject targets, which you have seen above, to run on all subprojects.
+
+For example, to build containers for all subprojects (`foo` and `bar`), instead of calling `make foo-container` and `make bar-container`, you can just call `make container` to achieve the same.
+
+This is a list of common targets that can be used in this way.
+
+```
+build                    (default) build binary for current platform
+all-build                build binaries for all platforms
+package                  build and package binary for current platform
+all-package              build and package binaries for all platforms
+container                build container image for current platform
+container-push           push built container image to all repos
+all-container-push       build and push container images for all platforms
+clean                    clean built binaries
+all-clean                clean built binaries, build cache, and helper tools
+version                  output the version string
+imageversion             output the container image version
+binaryname               output current artifact binary name
+variables                print makefile variables
+```
 
 ## Advanced
 
