@@ -29,7 +29,8 @@ fi
 function install_golangci() {
   echo "Installing golangci-lint v${GOLANGCI_VERSION} ..."
   echo "It will be installed to \"$(pwd)/bin/golangci-lint\" so that it won't interfere with existing versions (if any)."
-  curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh" | sh -s -- -b "$(pwd)/bin" v${GOLANGCI_VERSION}
+  curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh" |
+    sh -s -- -b "$(pwd)/bin" v${GOLANGCI_VERSION} || exit 1
 }
 
 if ! ${GOLANGCI} version >/dev/null 2>&1; then

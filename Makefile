@@ -86,6 +86,10 @@ mk-%:
 
 # ===== General Targets ======
 
+lint: # @HELP lint code
+lint:
+	bash build/lint.sh ./...
+
 boilerplate: # @HELP check file header
 boilerplate:
 	bash hack/verify-boilerplate.sh
