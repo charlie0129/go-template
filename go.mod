@@ -1,4 +1,4 @@
-module github.com/charlie0129/go-template
+module github.com/charlie0129/template-go
 
 go 1.19
 

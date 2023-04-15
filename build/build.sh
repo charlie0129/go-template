@@ -28,8 +28,11 @@ if [ -z "${ARCH:-}" ]; then
 fi
 
 if [ -z "${VERSION:-}" ]; then
-  echo "VERSION must be set"
-  exit 1
+  echo "VERSION is not set, defaulting to 'UNKNOWN'"
+fi
+
+if [ -z "${GIT_COMMIT:-}" ]; then
+  echo "GIT_COMMIT is not set, defaulting to 'UNKNOWN'"
 fi
 
 if [ -z "${OUTPUT:-}" ]; then
@@ -67,7 +70,13 @@ else
 fi
 
 # Set some version info.
-always_ldflags="-X $(go list -m)/pkg/version.Version=${VERSION}"
+always_ldflags=""
+if [ -n "${VERSION:-}" ]; then
+  always_ldflags="${always_ldflags} -X $(go list -m)/pkg/version.Version=${VERSION}"
+fi
+if [ -n "${GIT_COMMIT:-}" ]; then
+  always_ldflags="${always_ldflags} -X $(go list -m)/pkg/version.GitCommit=${GIT_COMMIT}"
+fi
 
 go build \
   -gcflags="${gogcflags}" \

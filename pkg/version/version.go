@@ -16,4 +16,7 @@ limitations under the License.
 
 package version
 
-var Version = "UNKNOWN"
+var (
+	Version   = "UNKNOWN"
+	GitCommit = "UNKNOWN"
+)

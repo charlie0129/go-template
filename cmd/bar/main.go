@@ -21,11 +21,12 @@ import (
 
 	"github.com/fatih/color"
 
-	"github.com/charlie0129/go-template/pkg/version"
+	"github.com/charlie0129/template-go/pkg/version"
 )
 
 func main() {
 	name := color.New(color.Bold).Sprint("bar")
-	version := color.New(color.FgGreen).Sprint(version.Version)
-	fmt.Printf("This is %s version %s.\n", name, version)
+	ver := color.New(color.FgGreen).Sprint(version.Version)
+	commit := color.New(color.FgBlue).Sprint(version.GitCommit)
+	fmt.Printf("This is %s version %s commit %s.\n", name, ver, commit)
 }

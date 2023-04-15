@@ -40,6 +40,7 @@ ifeq (1, $(USE_BUILD_CONTAINER))
 	    --env ARCH="$(ARCH)"                 \
 	    --env OS="$(OS)"                     \
 	    --env VERSION="$(VERSION)"           \
+	    --env GIT_COMMIT="$(GIT_COMMIT)"     \
 	    --env DEBUG="$(DEBUG)"               \
 	    --env OUTPUT="$(OUTPUT)"             \
 	    --env GOFLAGS="$(GOFLAGS)"           \
@@ -54,6 +55,7 @@ else
 	    OS="$(OS)"                   \
 	    OUTPUT="$(OUTPUT)"           \
 	    VERSION="$(VERSION)"         \
+	    GIT_COMMIT="$(GIT_COMMIT)"   \
 	    GOFLAGS="$(GOFLAGS)"         \
 	    GOPROXY="$(GOPROXY)"         \
 	    DEBUG="$(DEBUG)"             \
@@ -172,6 +174,7 @@ shell: build-dirs
 	    --env ARCH="$(ARCH)"                 \
 	    --env OS="$(OS)"                     \
 	    --env VERSION="$(VERSION)"           \
+	    --env GIT_COMMIT="$(GIT_COMMIT)"     \
 	    --env DEBUG="$(DEBUG)"               \
 	    --env OUTPUT="$(OUTPUT)"             \
 	    --env GOFLAGS="$(GOFLAGS)"           \
@@ -215,6 +218,7 @@ variables:
 	echo "BUILD:"
 	echo "  build_output             $(OUTPUT)"
 	echo "  app_version              $(VERSION)"
+	echo "  git_commit               $(GIT_COMMIT)"
 	echo "  debug_build_enabled      $(DEBUG)"
 	echo "  use_build_container      $(USE_BUILD_CONTAINER)"
 	echo "  build_container_image    $(BUILD_IMAGE)"
