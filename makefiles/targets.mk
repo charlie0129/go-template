@@ -17,10 +17,8 @@ all: build
 # ===== BUILD =====
 
 build-dirs:
-ifeq (1, $(USE_BUILD_CONTAINER))
 	mkdir -p "$(GOCACHE)/gocache" \
 	         "$(GOCACHE)/gomodcache"
-endif
 	mkdir -p "$(BIN_OUTPUT_DIR)"
 
 build: # @HELP (default) build binary for current platform
