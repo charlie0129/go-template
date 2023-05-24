@@ -112,21 +112,19 @@ all-package: $(addprefix package-, $(subst /,_, $(BIN_PLATFORMS)))
 
 container: # @HELP build container image for current platform
 container: container-build
-container-build: build-linux_$(ARCH)
+container-build: build-linux_$(ARCH) gen-dockerfile
 	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "linux/$(ARCH)"
 	if [ "$(OS)" != "linux" ]; then \
 	    echo "# CONTAINER warning: container target os $(OS) is not valid, only linux is allowed and will be used"; \
 	fi; \
-	TMPFILE=Dockerfile.tmp && \
-	    sed 's/$${BIN}/$(BIN)/g' Dockerfile.in > $${TMPFILE} && \
-	    DOCKER_BUILDKIT=1                      \
+	DOCKER_BUILDKIT=1                          \
 	    docker build                           \
-	    -f $${TMPFILE}                         \
+	    -f Dockerfile.tmp                      \
 	    --build-arg "ARCH=$(ARCH)"             \
 	    --build-arg "OS=linux"                 \
 	    --build-arg "VERSION=$(VERSION)"       \
 	    --build-arg "BASE_IMAGE=$(BASE_IMAGE)" \
-	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_OUTPUT_DIR)
+	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) .
 
 container-push: # @HELP push built container image to all repos
 container-push: $(addprefix container-push-, $(subst :,=, $(subst /,_, $(IMAGE_REPO_TAGS))))
@@ -139,16 +137,14 @@ container-push-%:
 BUILDX_PLATFORMS := $(shell echo "$(IMAGE_PLATFORMS)" | sed 's/ /,/g')
 
 all-container-push: # @HELP build and push container images for all platforms
-all-container-push: $(addprefix build-, $(subst /,_, $(IMAGE_PLATFORMS)))
+all-container-push: $(addprefix build-, $(subst /,_, $(IMAGE_PLATFORMS))) gen-dockerfile
 	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "$(IMAGE_PLATFORMS)"
-	TMPFILE=Dockerfile.tmp && \
-	    sed 's/$${BIN}/$(BIN)/g' Dockerfile.in > $${TMPFILE} && \
-	    docker buildx build --push             \
-	    -f $${TMPFILE}                         \
+	docker buildx build --push                 \
+	    -f Dockerfile.tmp                      \
 	    --platform "$(BUILDX_PLATFORMS)"       \
 	    --build-arg "VERSION=$(VERSION)"       \
 	    --build-arg "BASE_IMAGE=$(BASE_IMAGE)" \
-	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) $(BIN_OUTPUT_DIR)
+	    $(addprefix -t ,$(IMAGE_REPO_TAGS)) .
 
 # ===== MISC =====
 
@@ -189,6 +185,12 @@ shell: build-dirs
 # context.
 gen-dockerignore:
 	echo -e "*\n!$(BIN_OUTPUT_DIR)" > .dockerignore
+
+gen-dockerfile:
+	cat Dockerfile.in |                     \
+	    sed -e 's|{BIN}|$(BIN)|g' |         \
+	    sed -e 's|{VERSION}|$(VERSION)|g' | \
+	    sed -e 's|{BIN_OUTPUT_DIR}|$(BIN_OUTPUT_DIR)|g' > Dockerfile.tmp
 
 clean: # @HELP clean built binaries
 clean:
