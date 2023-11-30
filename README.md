@@ -17,11 +17,11 @@ This has only been tested on (mostly) Linux and macOS. Windows support is very u
 Chances are all the dependencies are already met on a dev machine.
 
 - `GNU Make`: apparently
-- `git`: to set binary version according to git tag
-- `docker`: to build containers for your app, or if you want to use the containerized build environment
+- `git`: to set version according to git tag
+- `docker`: only if you want to 1. build containers for your app; 2. use the containerized build environment
 - `go`: only if you want use your local Go SDK
 - `tar/zip`: packaging binaries
-- `sha256sum`: calculating checksum
+- Some of the `coreutils` (`sha256sum`, `realpath`)
 
 ## Usage
 

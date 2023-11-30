@@ -78,9 +78,22 @@ if [ -n "${GIT_COMMIT:-}" ]; then
   always_ldflags="${always_ldflags} -X $(go list -m)/pkg/version.GitCommit=${GIT_COMMIT}"
 fi
 
+build_dir="."
+entry_file="$@"
+# when dir is used,
+# i,e. $@ is not a file (a dir, symlink, or something else)
+if [ ! -f "$@" ]; then
+  build_dir="$@"
+  entry_file="."
+  # Must resolve OUTPUT to an absolute path
+  OUTPUT="$(realpath "${OUTPUT}")"
+fi
+
 go build \
+  -C "${build_dir}" \
   -gcflags="${gogcflags}" \
   -asmflags="${goasmflags}" \
   -ldflags="${always_ldflags} ${goldflags}" \
   -o "${OUTPUT}" \
-  "$@"
+  "$entry_file"
+

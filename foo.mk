@@ -16,8 +16,8 @@
 include makefiles/common.mk
 
 # Settings for this subproject
-# Entry file, containing func main
-ENTRY           := cmd/foo/main.go
+# Entry file, containing func main, or dir containing package main
+ENTRY           := cmd/foo
 # All supported platforms for binary distribution
 BIN_PLATFORMS   := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 # All supported platforms for container image distribution
