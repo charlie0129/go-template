@@ -19,9 +19,6 @@ permissions:
 env:
   # Enable debug output
   DBG_MAKEFILE: 1
-  # GitHub Actions somehow fails on hard links (from some point in time)
-  # So we force to copy the binary
-  FORCE_COPY_BINARY: 1
 
 jobs:
   checks:

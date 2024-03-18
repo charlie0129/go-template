@@ -66,7 +66,7 @@ ifeq (1, $(FORCE_COPY_BINARY))
 	rm -f "$(DIST)/$(BIN_BASENAME)" && cp -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
 else
 	echo "# BUILD linking $(DIST)/$(BIN_BASENAME) <==> $(OUTPUT)"
-	rm -f "$(DIST)/$(BIN_BASENAME)" && ln -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
+	rm -f "$(DIST)/$(BIN_BASENAME)" && ln -snf "$(subst $(DIST)/,,$(OUTPUT))" "$(DIST)/$(BIN_BASENAME)"
 endif
 
 # INTERNAL: build-<os>_<arch> to build for a specific platform
@@ -85,7 +85,7 @@ all-build: $(addprefix build-, $(subst /,_, $(BIN_PLATFORMS)))
 package: # @HELP build and package binary for current platform
 package: build
 	mkdir -p "$(PKG_OUTPUT_DIR)"
-	ln -f LICENSE "$(DIST)/LICENSE"
+	cp -f LICENSE "$(DIST)/LICENSE"
 	echo "# PACKAGE compressing $(OUTPUT) to $(PKG_OUTPUT)"
 	$(RM) "$(PKG_OUTPUT)"
 	if [ "$(OS)" == "windows" ]; then \
