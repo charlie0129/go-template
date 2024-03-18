@@ -61,8 +61,13 @@ else
 	    HTTPS_PROXY="$(HTTPS_PROXY)" \
 	    bash build/build.sh $(ENTRY)
 endif
+ifeq (1, $(FORCE_COPY_BINARY))
+	echo "# BUILD copying $(OUTPUT) to $(DIST)/$(BIN_BASENAME)"
+	rm -f "$(DIST)/$(BIN_BASENAME)" && cp -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
+else
 	echo "# BUILD linking $(DIST)/$(BIN_BASENAME) <==> $(OUTPUT)"
-	ln -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
+	rm -f "$(DIST)/$(BIN_BASENAME)" && ln -f "$(OUTPUT)" "$(DIST)/$(BIN_BASENAME)"
+endif
 
 # INTERNAL: build-<os>_<arch> to build for a specific platform
 build-%:

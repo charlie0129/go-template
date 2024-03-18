@@ -41,6 +41,9 @@ ifneq (1, $(USE_BUILD_CONTAINER)) # If not using build container, whcih means us
   endif
 endif
 
+# Copy binary instead of hard links when building (for bin/name-version/xxx <==> bin/name)
+FORCE_COPY_BINARY ?= 0
+
 # Build container image
 BUILD_IMAGE ?= golang:$(GO_VERSION)-alpine
 
