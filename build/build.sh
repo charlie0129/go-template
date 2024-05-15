@@ -40,6 +40,12 @@ if [ -z "${OUTPUT:-}" ]; then
   exit 1
 fi
 
+if [ -n "${GIT_CREDENTIALS:-}" ]; then
+  printf "# BUILD setup git credentials\n"
+  git config --global credential.helper store
+  echo "${GIT_CREDENTIALS}" >~/.git-credentials
+fi
+
 export CGO_ENABLED=0
 export GOARCH="${ARCH}"
 export GOOS="${OS}"

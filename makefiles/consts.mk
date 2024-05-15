@@ -23,7 +23,7 @@ ifeq (, $(shell which go))
   USE_BUILD_CONTAINER := 1
 endif
 # Go version used as the image of the build container, grabbed from go.mod
-GO_VERSION       := $(shell grep -E '^go [[:digit:]]{1,3}\.[[:digit:]]{1,3}$$' go.mod | sed 's/go //')
+GO_VERSION       := $(shell grep -oE '^go [[:digit:]]{1,3}\.[[:digit:]]{1,3}' go.mod | sed 's/go //')
 # Local Go release version (only supports go1.16 and later)
 LOCAL_GO_VERSION := $(shell go env GOVERSION 2>/dev/null | grep -oE "go[[:digit:]]{1,3}\.[[:digit:]]{1,3}" || echo "none")
 ifneq (1, $(USE_BUILD_CONTAINER)) # If not using build container, whcih means user have go installed. We need some checks.
@@ -45,7 +45,7 @@ endif
 FORCE_COPY_BINARY ?= 0
 
 # Build container image
-BUILD_IMAGE ?= golang:$(GO_VERSION)-alpine
+BUILD_IMAGE ?= golang:$(GO_VERSION)
 
 # The base image of container artifacts
 BASE_IMAGE ?= gcr.io/distroless/static:nonroot
@@ -54,10 +54,13 @@ BASE_IMAGE ?= gcr.io/distroless/static:nonroot
 DEBUG ?=
 
 # env to passthrough to the build container
-GOFLAGS     ?=
-GOPROXY     ?=
-HTTP_PROXY  ?=
-HTTPS_PROXY ?=
+GOFLAGS         ?=
+GOPROXY         ?=
+GOPRIVATE       ?=
+HTTP_PROXY      ?=
+HTTPS_PROXY     ?=
+# GIT_CREDENTIALS format is the same as in ~/.git-credentials to help authenticate to private repositories
+GIT_CREDENTIALS ?=
 
 # Version string, use git tag by default
 VERSION     ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "UNKNOWN")
@@ -66,7 +69,7 @@ GIT_COMMIT  ?= $(shell git rev-parse --verify HEAD 2>/dev/null || echo "UNKNOWN"
 # Container image tag, same as VERSION by default
 # if VERSION is not a semantic version (e.g. local uncommitted versions), then use latest
 IMAGE_TAG ?= $(shell bash -c " \
-  if [[ ! $(VERSION) =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(-(alpha|beta)\.[0-9]{1,3})?$$ ]]; then \
+  if [[ ! $(VERSION) =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}.*$$ ]]; then \
     echo latest;     \
   else               \
     echo $(VERSION); \
@@ -84,6 +87,9 @@ ifeq (, $(shell which go))
   HOSTARCH   := $(shell uname -m)
   ifeq ($(HOSTARCH),x86_64)
     HOSTARCH := amd64
+  endif
+  ifeq ($(HOSTARCH),aarch64)
+    HOSTARCH := arm64
   endif
   OS         := $(if $(GOOS),$(GOOS),$(HOSTOS))
   ARCH       := $(if $(GOARCH),$(GOARCH),$(HOSTARCH))

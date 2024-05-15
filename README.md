@@ -93,7 +93,7 @@ variables                print makefile variables
 
 #### Build environment
 
-By default, if you have Go in your PATH, it will use you local Go SDK. If you don't have Go, it will use a containerized build environment, specifically, a `golang:1.xx-alpine` Docker image. The actual `1.xx` go version will be determined by your `go.mod`. To manually specify the image of the containerized build environment, set `BUILD_IMAGE` to the Docker image you want, e.g. `golang:1.20`.
+By default, if you have Go in your PATH, it will use you local Go SDK. If you don't have Go, it will use a containerized build environment, specifically, a `golang:1.xx` Docker image. The actual `1.xx` go version will be determined by your `go.mod`. To manually specify the image of the containerized build environment, set `BUILD_IMAGE` to the Docker image you want, e.g. `golang:1.20`.
 
 To make sure the build environment is the same across your teammates and avoid problems, it is recommended to use the containerized build environment. To forcibly use the containerized build environment, set `USE_BUILD_CONTAINER` to `1`. For example, `USE_BUILD_CONTAINER=1 make all-build`.
 
@@ -103,7 +103,7 @@ Set `DEBUG` to `1` to build binary for debugging (disable optimizations and inli
 
 #### Environment variables
 
-These environment variables will be passed to the containerized build environment: `GOFLAGS`, `GOPROXY`, `HTTP_PROXY`, `HTTPS_PROXY`.
+These environment variables will be passed to the containerized build environment: `GOFLAGS`, `GOPROXY`, `GOPRIVATE`, `HTTP_PROXY`, `HTTPS_PROXY`.
 
 Setting `GOOS` and `GOARCH` will do cross-compiling, even when using the containerized build environment, just like you would expect.
 

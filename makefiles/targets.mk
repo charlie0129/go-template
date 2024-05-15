@@ -25,27 +25,29 @@ build: # @HELP (default) build binary for current platform
 build: gen-dockerignore build-dirs
 ifeq (1, $(USE_BUILD_CONTAINER))
 	echo "# BUILD using build container: $(BUILD_IMAGE)"
-	docker run                               \
-	    -i                                   \
-	    --rm                                 \
-	    --network host                       \
-	    -u $$(id -u):$$(id -g)               \
-	    -v $$(pwd):/src                      \
-	    -w /src                              \
-	    -v $$(pwd)/$(GOCACHE):/cache         \
-	    --env GOCACHE="/cache/gocache"       \
-	    --env GOMODCACHE="/cache/gomodcache" \
-	    --env ARCH="$(ARCH)"                 \
-	    --env OS="$(OS)"                     \
-	    --env VERSION="$(VERSION)"           \
-	    --env GIT_COMMIT="$(GIT_COMMIT)"     \
-	    --env DEBUG="$(DEBUG)"               \
-	    --env OUTPUT="$(OUTPUT)"             \
-	    --env GOFLAGS="$(GOFLAGS)"           \
-	    --env GOPROXY="$(GOPROXY)"           \
-	    --env HTTP_PROXY="$(HTTP_PROXY)"     \
-	    --env HTTPS_PROXY="$(HTTPS_PROXY)"   \
-	    $(BUILD_IMAGE)                       \
+	docker run                                     \
+	    -i                                         \
+	    --rm                                       \
+	    --network host                             \
+	    -u $$(id -u):$$(id -g)                     \
+	    -v $$(pwd):/src                            \
+	    -w /src                                    \
+	    -v $$(pwd)/$(GOCACHE):/cache               \
+	    --env GOCACHE="/cache/gocache"             \
+	    --env GOMODCACHE="/cache/gomodcache"       \
+	    --env ARCH="$(ARCH)"                       \
+	    --env OS="$(OS)"                           \
+	    --env VERSION="$(VERSION)"                 \
+	    --env GIT_COMMIT="$(GIT_COMMIT)"           \
+	    --env DEBUG="$(DEBUG)"                     \
+	    --env OUTPUT="$(OUTPUT)"                   \
+	    --env GOFLAGS="$(GOFLAGS)"                 \
+	    --env GOPROXY="$(GOPROXY)"                 \
+	    --env GOPRIVATE="$(GOPRIVATE)"             \
+	    --env HTTP_PROXY="$(HTTP_PROXY)"           \
+	    --env HTTPS_PROXY="$(HTTPS_PROXY)"         \
+	    --env GIT_CREDENTIALS="$(GIT_CREDENTIALS)" \
+	    $(BUILD_IMAGE)                             \
 	    ./build/build.sh $(ENTRY)
 else
 	echo "# BUILD using local go sdk: $(LOCAL_GO_VERSION) , set USE_BUILD_CONTAINER=1 to use containerized build environment"
@@ -56,6 +58,7 @@ else
 	    GIT_COMMIT="$(GIT_COMMIT)"   \
 	    GOFLAGS="$(GOFLAGS)"         \
 	    GOPROXY="$(GOPROXY)"         \
+	    GOPRIVATE="$(GOPRIVATE)"     \
 	    DEBUG="$(DEBUG)"             \
 	    HTTP_PROXY="$(HTTP_PROXY)"   \
 	    HTTPS_PROXY="$(HTTPS_PROXY)" \
@@ -160,27 +163,29 @@ CMD ?=
 shell: # @HELP launch a shell in the build container
 shell: build-dirs
 	echo "# launching a shell in the build container"
-	docker run                               \
-	    -it                                  \
-	    --rm                                 \
-	    --network host                       \
-	    -u $$(id -u):$$(id -g)               \
-	    -v $$(pwd):/src                      \
-	    -w /src                              \
-	    -v $$(pwd)/$(GOCACHE):/cache         \
-	    --env GOCACHE="/cache/gocache"       \
-	    --env GOMODCACHE="/cache/gomodcache" \
-	    --env ARCH="$(ARCH)"                 \
-	    --env OS="$(OS)"                     \
-	    --env VERSION="$(VERSION)"           \
-	    --env GIT_COMMIT="$(GIT_COMMIT)"     \
-	    --env DEBUG="$(DEBUG)"               \
-	    --env OUTPUT="$(OUTPUT)"             \
-	    --env GOFLAGS="$(GOFLAGS)"           \
-	    --env GOPROXY="$(GOPROXY)"           \
-	    --env HTTP_PROXY="$(HTTP_PROXY)"     \
-	    --env HTTPS_PROXY="$(HTTPS_PROXY)"   \
-	    $(BUILD_IMAGE)                       \
+	docker run                                     \
+	    -it                                        \
+	    --rm                                       \
+	    --network host                             \
+	    -u $$(id -u):$$(id -g)                     \
+	    -v $$(pwd):/src                            \
+	    -w /src                                    \
+	    -v $$(pwd)/$(GOCACHE):/cache               \
+	    --env GOCACHE="/cache/gocache"             \
+	    --env GOMODCACHE="/cache/gomodcache"       \
+	    --env ARCH="$(ARCH)"                       \
+	    --env OS="$(OS)"                           \
+	    --env VERSION="$(VERSION)"                 \
+	    --env GIT_COMMIT="$(GIT_COMMIT)"           \
+	    --env DEBUG="$(DEBUG)"                     \
+	    --env OUTPUT="$(OUTPUT)"                   \
+	    --env GOFLAGS="$(GOFLAGS)"                 \
+	    --env GOPROXY="$(GOPROXY)"                 \
+	    --env GOPRIVATE="$(GOPRIVATE)"             \
+	    --env HTTP_PROXY="$(HTTP_PROXY)"           \
+	    --env HTTPS_PROXY="$(HTTPS_PROXY)"         \
+	    --env GIT_CREDENTIALS="$(GIT_CREDENTIALS)" \
+	    $(BUILD_IMAGE)                             \
 	    /bin/sh $(CMD)
 
 # Generate a dockerignore file to ignore everything except
@@ -241,9 +246,15 @@ variables:
 	echo "  all_container_os_arch    $(IMAGE_PLATFORMS)"
 	echo "ENVIRONMENTS:"
 	echo "  GOPROXY                  $(GOPROXY)"
+	echo "  GOPRIVATE                $(GOPRIVATE)"
 	echo "  GOFLAGS                  $(GOFLAGS)"
 	echo "  HTTP_PROXY               $(HTTP_PROXY)"
 	echo "  HTTPS_PROXY              $(HTTPS_PROXY)"
+ifneq (, $(GIT_CREDENTIALS))
+	echo "  GIT_CREDENTIALS          [masked]"
+else
+	echo "  GIT_CREDENTIALS          "
+endif
 
 help: # @HELP print this message
 help: variables
