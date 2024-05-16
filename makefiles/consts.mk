@@ -66,17 +66,23 @@ GIT_CREDENTIALS ?=
 VERSION     ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "UNKNOWN")
 GIT_COMMIT  ?= $(shell git rev-parse --verify HEAD 2>/dev/null || echo "UNKNOWN")
 
-# Container image tag, same as VERSION by default
-# if VERSION is not a semantic version (e.g. local uncommitted versions), then use latest
-IMAGE_TAG ?= $(shell bash -c " \
-  if [[ ! $(VERSION) =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}.*$$ ]]; then \
-    echo latest;     \
-  else               \
-    echo $(VERSION); \
-  fi")
+# Container image tag.
+# If VERSION isn't a git tag, use latest.
+# Otherwise, use VERSION and latest.
+IMAGE_TAGS ?= $(shell bash -c ' \
+  if [ ! $$(git tag -l "$(VERSION)") ]; then \
+    echo latest;            \
+  else                      \
+    echo $(VERSION) latest; \
+  fi')
 
-# Full Docker image name (e.g. docker.io/oamdev/kubetrigger:latest)
-IMAGE_REPO_TAGS  ?= $(addsuffix /$(IMAGE_NAME):$(IMAGE_TAG),$(IMAGE_REPOS))
+# Full Docker image name (e.g. ghcr.io/charlie0129/foo:v1.0.0 docker.io/charlie0129/foo:v1.0.0  ghcr.io/charlie0129/foo:latest docker.io/charlie0129/foo:latest)
+IMAGE_REPO_TAGS ?=
+ifeq (, $(IMAGE_REPO_TAGS))
+  $(foreach tag,$(IMAGE_TAGS),$(eval \
+    IMAGE_REPO_TAGS += $(addsuffix /$(IMAGE_NAME):$(tag),$(IMAGE_REPOS)) \
+  ))
+endif
 
 GOOS        ?=
 GOARCH      ?=

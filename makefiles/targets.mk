@@ -121,7 +121,7 @@ all-package: $(addprefix package-, $(subst /,_, $(BIN_PLATFORMS)))
 container: # @HELP build container image for current platform
 container: container-build
 container-build: build-linux_$(ARCH) gen-dockerfile
-	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "linux/$(ARCH)"
+	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAGS)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "linux/$(ARCH)"
 	if [ "$(OS)" != "linux" ]; then \
 	    echo "# CONTAINER warning: container target os $(OS) is not valid, only linux is allowed and will be used"; \
 	fi; \
@@ -146,7 +146,7 @@ BUILDX_PLATFORMS := $(shell echo "$(IMAGE_PLATFORMS)" | sed 's/ /,/g')
 
 all-container-push: # @HELP build and push container images for all platforms
 all-container-push: $(addprefix build-, $(subst /,_, $(IMAGE_PLATFORMS))) gen-dockerfile
-	printf "# CONTAINER tag: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAG)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "$(IMAGE_PLATFORMS)"
+	printf "# CONTAINER tags: %s\tname: %s\trepos: %s\tarch: %s\n" "$(IMAGE_TAGS)" "$(IMAGE_NAME)" "$(IMAGE_REPOS)" "$(IMAGE_PLATFORMS)"
 	docker buildx build --push                 \
 	    -f Dockerfile.tmp                      \
 	    --platform "$(BUILDX_PLATFORMS)"       \
@@ -217,11 +217,15 @@ version:
 
 imageversion: # @HELP output the container image version
 imageversion:
-	echo $(IMAGE_TAG)
+	echo $(IMAGE_TAGS)
 
 binaryname: # @HELP output current artifact binary name
 binaryname:
 	echo $(BIN_FULLNAME)
+
+buildimage: # @HELP output current build image
+buildimage:
+	echo $(BUILD_IMAGE)
 
 variables: # @HELP print makefile variables
 variables:
@@ -235,7 +239,7 @@ variables:
 	echo "  local_go_sdk             $(LOCAL_GO_VERSION)"
 	echo "CONTAINER:"
 	echo "  container_base_image     $(BASE_IMAGE)"
-	echo "  container_img_tag        $(IMAGE_TAG)"
+	echo "  container_img_tags       $(IMAGE_TAGS)"
 	echo "  container_img_name       $(IMAGE_NAME)"
 	echo "  container_repos          $(IMAGE_REPOS)"
 	echo "  container_img_full       $(IMAGE_REPO_TAGS)"

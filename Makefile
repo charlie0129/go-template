@@ -35,6 +35,7 @@ TARGETS := build       \
     version            \
     imageversion       \
     binaryname         \
+    buildimage         \
     variables
 
 # Default target, subprojects will be called with default target too

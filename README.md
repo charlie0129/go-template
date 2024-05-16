@@ -115,9 +115,9 @@ To customize it, set `BASE_IMAGE` to your desired image. For example, `BASE_IMAG
 
 #### Versioning
 
-By default, `pkg/version.Version` will be determined by `git describe --tags --always --dirty`. For example, if you are on a git commit tagged as `v0.0.1`, then `pkg/version.Version` will be `v0.0.1`. The tag of your container will be `v0.0.1` as well. If you are not on that exact tagged commit, then the version will be something like `v0.0.1-1-b5f5feb`. The tag of your container will be `latest`.
+By default, `pkg/version.Version` will be determined by `git describe --tags --always --dirty`. For example, if you are on a git commit tagged as `v0.0.1`, then `pkg/version.Version` will be `v0.0.1`. The tag of your container will have `v0.0.1` and `latest`. If you have are not on a tagged commit, then the version will be something like `v0.0.1-1-gb5f5feb-dirty`. The tag of your container will be `latest`.
 
-To set the version manually, set `VERSION` to something you want. This will affect `pkg/version.Version`. Set `IMAGE_TAG` to the Docker image tag you want too.
+To set the version manually, set `VERSION` to something you want. This will affect `pkg/version.Version`. Set `IMAGE_TAGS` to the Docker image tag you want too.
 
 #### Binary names
 
