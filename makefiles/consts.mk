@@ -19,7 +19,7 @@
 # we use the local go sdk by default. Set USE_BUILD_CONTAINER to 1 manually
 # to use build container.
 USE_BUILD_CONTAINER ?=
-ifeq (, $(shell which go))
+ifeq (, $(shell which go 2>/dev/null))
   USE_BUILD_CONTAINER := 1
 endif
 # Go version used as the image of the build container, grabbed from go.mod
@@ -88,7 +88,7 @@ GOOS        ?=
 GOARCH      ?=
 # If user has not defined GOOS/GOARCH, use Go defaults.
 # If user don't have Go, use the os/arch of their machine.
-ifeq (, $(shell which go))
+ifeq (, $(shell which go 2>/dev/null))
   HOSTOS     := $(shell uname -s | tr '[:upper:]' '[:lower:]')
   HOSTARCH   := $(shell uname -m)
   ifeq ($(HOSTARCH),x86_64)
