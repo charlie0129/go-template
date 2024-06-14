@@ -88,13 +88,13 @@ all-build: $(addprefix build-, $(subst /,_, $(BIN_PLATFORMS)))
 package: # @HELP build and package binary for current platform
 package: build
 	mkdir -p "$(PKG_OUTPUT_DIR)"
-	cp -f LICENSE "$(DIST)/LICENSE"
+	cp -f LICENSE "$(DIST)/LICENSE" || true
 	echo "# PACKAGE compressing $(OUTPUT) to $(PKG_OUTPUT)"
 	$(RM) "$(PKG_OUTPUT)"
 	if [ "$(OS)" == "windows" ]; then \
 	    zip "$(PKG_OUTPUT)" -j "$(DIST)/$(BIN_BASENAME)" "$(DIST)/LICENSE"; \
 	else \
-	    tar czf "$(PKG_OUTPUT)" -C "$(DIST)" "$(BIN_BASENAME)" LICENSE; \
+	    tar -hczf "$(PKG_OUTPUT)" -C "$(DIST)" "$(BIN_BASENAME)" LICENSE; \
 	fi;
 	cd "$(PKG_OUTPUT_DIR)" && sha256sum "$(PKG_FULLNAME)" >> "$(CHECKSUM_FULLNAME)";
 	echo "# PACKAGE checksum saved to $(PKG_OUTPUT_DIR)/$(CHECKSUM_FULLNAME)"
