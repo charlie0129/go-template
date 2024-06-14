@@ -82,7 +82,7 @@ $(foreach p,$(SUBPROJS),$(eval \
 ))
 
 mk-%:
-	echo "# make -f $(lastword $(subst ., ,$*)).mk $(firstword $(subst ., ,$*))"
+	echo "# make -f $(lastword $(subst ., ,$*)).mk $(firstword $(subst ., ,$*))" >&2
 	$(MAKE) -f $(lastword $(subst ., ,$*)).mk $(firstword $(subst ., ,$*))
 
 # ===== General Targets ======
